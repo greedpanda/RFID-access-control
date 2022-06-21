@@ -1,0 +1,64 @@
+version: '3.9'
+
+networks: 
+    tig-net:
+        driver: bridge
+
+volumes:
+    tig-data:
+
+services:
+    influxdb:
+        image: influxdb:1.8.6
+        container_name: influxdb
+        ports:
+            - 8086:8086
+        environment:
+            INFLUXDB_HTTP_AUTH_ENABLED: "true"
+            INFLUXDB_DB: "rfid"
+            INFLUXDB_ADMIN_USER: "<username>"
+            INFLUXDB_ADMIN_PASSWORD: "<password>"
+        networks: 
+            - tig-net
+        volumes:
+            - tig-data:/var/lib/influxdb
+
+    grafana:
+        image: grafana/grafana:7.5.9
+        container_name: grafana
+        ports: 
+            - 3000:3000
+        environment:
+            GF_SECURITY_ADMIN_USER: "<username>"
+            GF_SECURITY_ADMIN_PASSWORD: "<password>"
+        networks: 
+            - tig-net
+        volumes:
+            - tig-data:/var/lib/grafana
+        restart: always    
+
+    mosquitto:
+        image: eclipse-mosquitto
+        container_name: mosquitto
+        hostname: mosquitto
+        volumes:
+            - ./mosquitto:/mosquitto/:rw
+        networks:
+            - tig-net
+        ports:
+            - 1883:1883
+            - 9002:9001
+
+    node-red:
+        image: nodered/node-red
+        container_name: nodered
+        hostname: nodered
+        depends_on:
+            - "mosquitto"
+        volumes:
+            - tig-data:/data
+        networks:
+            - tig-net
+        ports:
+            - 1880:1880
+ 
