@@ -1,0 +1,7 @@
+{
+  "ssid": "<your SSID>",
+  "ssid_pass": "<your SSID password>",
+  "hostname_mqtt":"<host address>",
+  "user_mqtt": "<mqtt username>",
+  "pass_mqtt": "<mqtt password>"
+}
